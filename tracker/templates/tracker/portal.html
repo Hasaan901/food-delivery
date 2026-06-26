@@ -40,7 +40,7 @@
     </li>
 </ul>
 
-<div class="tab-content animate-up" id="portalTabsContent" style="animation-delay: 0.1s;">
+<div class="tab-content" id="portalTabsContent">
     <div class="tab-pane fade {% if active_tab == 'customer' %}show active{% endif %}" id="portal-customer" role="tabpanel" aria-labelledby="customer-portal-tab">
         {% include 'tracker/partials/customer_panel.html' %}
     </div>
@@ -52,7 +52,22 @@
     </div>
 </div>
 
+<!-- Restaurant modals live outside tab panes so the backdrop never blocks clicks -->
+<div id="restaurant-modals-root">
+    {% include 'tracker/partials/restaurant_modals.html' %}
+</div>
+
 <style>
+    /* Fix Bootstrap modal stacking above tab panes and animations */
+    .modal-backdrop {
+        z-index: 1055 !important;
+    }
+    .modal.menu-modal {
+        z-index: 1060 !important;
+    }
+    #portalTabsContent .tab-pane {
+        transform: none !important;
+    }
     .portal-tabs .nav-link {
         color: #555555;
         background-color: transparent;

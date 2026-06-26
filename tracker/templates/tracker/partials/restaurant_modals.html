@@ -1,0 +1,80 @@
+{% for restaurant in restaurants %}
+<div class="modal fade menu-modal" id="menuModal{{ restaurant.id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius: 24px; border: none;
+                                          box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+
+            <div class="modal-header border-0 pt-4 px-4 pb-0">
+                <div>
+                    <span class="badge bg-light fw-bold border mb-1"
+                          style="color: var(--fp-pink); border-radius: 8px; font-size: 0.75rem;">
+                        ⭐ {{ restaurant.rating }} &bull; {{ restaurant.cuisine }}
+                    </span>
+                    <h4 class="modal-title fw-bold text-dark">{{ restaurant.name }}</h4>
+                    <p class="text-secondary small mb-0">
+                        <i class="bi bi-clock me-1"></i>{{ restaurant.delivery_time }}
+                        &bull; Delivery:
+                        {% if restaurant.delivery_fee == 0 %}
+                            <span class="text-success fw-bold">Free</span>
+                        {% else %}
+                            Rs. {{ restaurant.delivery_fee|floatformat:2 }}
+                        {% endif %}
+                    </p>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body px-4 py-3">
+                <div class="d-flex flex-column gap-3">
+                    {% for item in restaurant.fooditem_set.all %}
+                    <div class="d-flex align-items-center gap-3 p-3 rounded-4 border border-light"
+                         style="background: #fafafa;">
+                        {% if item.image_url %}
+                        <img src="{{ item.image_url }}" alt="{{ item.name }}"
+                             class="rounded-3 flex-shrink-0"
+                             style="width: 60px; height: 60px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-3 bg-light d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width: 60px; height: 60px; font-size: 2rem;">🍽️</div>
+                        {% endif %}
+
+                        <div class="flex-grow-1 min-width-0">
+                            <h6 class="fw-bold mb-0 text-dark text-truncate">{{ item.name }}</h6>
+                            <p class="text-muted mb-1"
+                               style="font-size: 0.75rem; line-height: 1.3;">
+                                {{ item.description|default:"No description." }}
+                            </p>
+                            <span class="fw-bold" style="color: var(--fp-pink); font-size: 0.9rem;">
+                                Rs. {{ item.price }}
+                            </span>
+                        </div>
+
+                        <button type="button"
+                                class="btn-add-to-basket btn btn-sm fw-bold px-3 flex-shrink-0"
+                                data-item-id="{{ item.id }}"
+                                data-item-name="{{ item.name|escapejs }}"
+                                data-item-price="{{ item.price }}"
+                                data-restaurant-name="{{ restaurant.name|escapejs }}"
+                                data-delivery-fee="{{ restaurant.delivery_fee }}"
+                                data-restaurant-id="{{ restaurant.id }}"
+                                style="background-color: var(--fp-pink); color: white; border-radius: 10px;
+                                       white-space: nowrap; font-size: 0.8rem;">
+                            <i class="bi bi-plus"></i> Add
+                        </button>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted py-4">No menu items yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 pb-4 px-4 pt-2">
+                <button type="button" class="btn btn-outline-secondary w-100 fw-bold"
+                        data-bs-dismiss="modal" style="border-radius: 12px;">
+                    ← Back to Restaurants
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
