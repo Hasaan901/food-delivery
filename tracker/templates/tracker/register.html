@@ -1,0 +1,60 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center my-4 animate-up">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4 border-0 shadow-lg">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px; background-color: var(--fp-light-pink);">
+                        <i class="bi bi-person-plus fs-2 text-danger" style="color: var(--fp-pink) !important;"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">Create Account</h3>
+                    <p class="text-muted small">Register to start managing, driving, or ordering</p>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold text-secondary">Username</label>
+                            <input type="text" name="username" class="form-control bg-light" placeholder="Choose username" required>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold text-secondary">Phone Number</label>
+                            <input type="text" name="phone" class="form-control bg-light" placeholder="e.g. +923001234567">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Email Address</label>
+                        <input type="email" name="email" class="form-control bg-light" placeholder="name@example.com" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">Password</label>
+                        <input type="password" name="password" class="form-control bg-light" placeholder="Create strong password" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-primary mb-2" style="color: var(--fp-pink) !important;">Select Account Role Type</label>
+                        <select name="role" class="form-select border-2" style="border-color: var(--fp-pink);" required>
+                            <option value="customer">Customer (Place & Track Orders)</option>
+                            <option value="driver">Driver (Accept & Deliver Orders)</option>
+                            <option value="admin">Restaurant Admin (Manage Platform Logistics)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100 py-3 fw-bold shadow-lg" type="submit">
+                        <i class="bi bi-check-circle me-2"></i>Complete Registration
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4 pt-2 border-top">
+                    <p class="text-muted small mb-0">Already registered? <a href="{% url 'login' %}" class="fw-bold text-decoration-none" style="color: var(--fp-pink);">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

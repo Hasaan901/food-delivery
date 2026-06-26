@@ -1,0 +1,129 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="row align-items-center py-5 animate-up">
+    <!-- Left Hero Column -->
+    <div class="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start">
+        <span class="badge px-3 py-2 text-uppercase mb-3 shadow-sm" style="background-color: var(--fp-light-pink); color: var(--fp-pink); font-weight: 700; font-size: 0.85rem; border: 1px solid rgba(215,15,100,0.15)">
+            🚀 Live Logistics Platform
+        </span>
+        <h1 class="display-3 fw-extrabold mb-4" style="color: var(--fp-dark); line-height: 1.15; letter-spacing: -1.5px;">
+            Hungry? <br>
+            <span style="color: var(--fp-pink);">We've Got You Covered.</span>
+        </h1>
+        <p class="fs-5 text-muted mb-4 pe-lg-5" style="line-height: 1.6;">
+            Experience the next generation of logistics: lightning-fast courier dispatch, real-time pipeline monitoring, and structured restaurant operations management.
+        </p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3">
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-5 py-3 shadow-lg fw-bold d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-box-arrow-in-right fs-5"></i> Enter Portal Workspace
+            </a>
+            <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg px-4 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; transition: var(--transition-smooth);">
+                <i class="bi bi-person-plus fs-5"></i> Create Profile
+            </a>
+        </div>
+    </div>
+    
+    <!-- Right Graphic Column -->
+    <div class="col-lg-6 text-center position-relative">
+        <div class="position-absolute top-50 start-50 translate-middle rounded-circle" style="width: 350px; height: 350px; background-color: var(--fp-light-pink); z-index: 1; opacity: 0.7; filter: blur(30px);"></div>
+        <div class="card bg-transparent border-0 position-relative animate-float" style="z-index: 2;">
+            <!-- Simple SVG Foodpanda-like Delivery Illustration -->
+            <svg class="mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="320">
+                <!-- Background shadow -->
+                <ellipse cx="250" cy="420" rx="180" ry="25" fill="#e2e3e5" />
+                
+                <!-- Bike Frame -->
+                <path d="M120 380 L200 280 L280 280 L350 380 M200 280 L250 180 L380 180" fill="none" stroke="#d70f64" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M250 180 L180 380" fill="none" stroke="#d70f64" stroke-width="12" />
+                
+                <!-- Wheels -->
+                <circle cx="120" cy="380" r="50" fill="none" stroke="#212529" stroke-width="14" />
+                <circle cx="120" cy="380" r="20" fill="#6c757d" />
+                <circle cx="380" cy="380" r="50" fill="none" stroke="#212529" stroke-width="14" />
+                <circle cx="380" cy="380" r="20" fill="#6c757d" />
+                
+                <!-- Handlebars and Seat -->
+                <path d="M360 150 L380 180 L410 180" fill="none" stroke="#212529" stroke-width="10" stroke-linecap="round" />
+                <path d="M220 180 L270 180" fill="none" stroke="#212529" stroke-width="12" stroke-linecap="round" />
+                
+                <!-- Large Food Box (Foodpanda pink) -->
+                <rect x="80" y="180" width="90" height="90" rx="10" fill="#d70f64" />
+                <rect x="95" y="195" width="60" height="60" rx="5" fill="#ffffff" opacity="0.2" />
+                <!-- Text inside box -->
+                <text x="125" y="235" font-family="'Outfit', sans-serif" font-weight="900" font-size="28" fill="#ffffff" text-anchor="middle">BD</text>
+                
+                <!-- Mascot Panda on bike -->
+                <circle cx="280" cy="130" r="35" fill="#ffffff" stroke="#212529" stroke-width="6" />
+                <!-- Ears -->
+                <circle cx="250" cy="100" r="12" fill="#212529" />
+                <circle cx="310" cy="100" r="12" fill="#212529" />
+                <!-- Eye patches -->
+                <ellipse cx="268" cy="125" rx="7" ry="10" fill="#212529" transform="rotate(-10, 268, 125)" />
+                <ellipse cx="292" cy="125" rx="7" ry="10" fill="#212529" transform="rotate(10, 292, 125)" />
+                <!-- Pupils -->
+                <circle cx="270" cy="123" r="3" fill="#ffffff" />
+                <circle cx="290" cy="123" r="3" fill="#ffffff" />
+                <!-- Nose -->
+                <polygon points="277,138 283,138 280,142" fill="#212529" />
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5 animate-up" style="animation-delay: 0.2s;">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 p-4 border-0 text-center">
+            <div class="card-body">
+                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px; background-color: var(--fp-light-pink);">
+                    <i class="bi bi-cart-check fs-2 text-danger" style="color: var(--fp-pink) !important;"></i>
+                </div>
+                <h4 class="fw-bold mb-2 text-dark">Order Dispatch</h4>
+                <p class="text-muted small mb-0">
+                    Customers place orders which are dynamically integrated into the logistics dispatch pipeline queue.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 p-4 border-0 text-center">
+            <div class="card-body">
+                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px; background-color: var(--fp-light-pink);">
+                    <i class="bi bi-map fs-2 text-danger" style="color: var(--fp-pink) !important;"></i>
+                </div>
+                <h4 class="fw-bold mb-2 text-dark">Live Route Tracking</h4>
+                <p class="text-muted small mb-0">
+                    Logistics tracking shows real-time progress indicators as drivers move through pick up to final destination dropoff.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 p-4 border-0 text-center">
+            <div class="card-body">
+                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px; background-color: var(--fp-light-pink);">
+                    <i class="bi bi-shield-check fs-2 text-danger" style="color: var(--fp-pink) !important;"></i>
+                </div>
+                <h4 class="fw-bold mb-2 text-dark">Central Operations</h4>
+                <p class="text-muted small mb-0">
+                    Custom admin workspace to manage system accounts, edit active database orders, and track logs without code.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-extrabold {
+        font-weight: 800;
+    }
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}

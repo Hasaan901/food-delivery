@@ -1,0 +1,32 @@
+# Environment variables — NEVER push this
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Django
+*.sqlite3
+*.log
+staticfiles/
+media/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Pyrefly / type checkers
+pyrefly.toml

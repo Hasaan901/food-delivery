@@ -1,0 +1,67 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 animate-up">
+    <div>
+        <h2 class="fw-bold text-dark mb-0"><i class="bi bi-bicycle me-2" style="color: var(--fp-pink);"></i>Courier Delivery Ledger</h2>
+        <p class="text-muted small mb-0">Manage and update routes assigned to your dispatch manifest.</p>
+    </div>
+    <span class="badge px-3 py-2 text-uppercase shadow-sm" style="background-color: var(--fp-light-pink); color: var(--fp-pink); font-weight: 700;">
+        <i class="bi bi-geo-alt-fill me-1"></i> Live Location Enabled
+    </span>
+</div>
+
+<div class="card border-0 shadow-sm bg-white p-4 animate-up" style="animation-delay: 0.1s;">
+    <h5 class="fw-bold mb-3 text-secondary">Assigned Route Action Logs</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Payload Details</th>
+                    <th>Destination Delivery Address</th>
+                    <th>Current Tracker Milestone</th>
+                    <th class="text-end">Logistics Status Control Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="fw-bold text-primary">#{{ order.id }}</td>
+                    <td class="fw-semibold">{{ order.item_details }}</td>
+                    <td class="text-muted small" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ order.delivery_address }}</td>
+                    <td>
+                        <span class="badge {% if order.status == 'Assigned' %}bg-primary{% elif order.status == 'Picked Up' %}bg-info text-dark{% elif order.status == 'Delivered' %}bg-success{% else %}bg-secondary{% endif %} text-capitalize px-2 py-1" style="border-radius: 8px;">
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        {% if order.status != 'Delivered' and order.status != 'Cancelled' %}
+                            <form action="{% url 'update_status' order.id %}" method="POST" class="d-flex justify-content-end gap-2 align-items-center">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm" style="max-width: 150px; border-radius: 8px;">
+                                    <option value="Picked Up" {% if order.status == 'Picked Up' %}selected{% endif %}>Picked Up</option>
+                                    <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                </select>
+                                <button type="submit" class="btn btn-success btn-sm fw-bold px-3 py-1">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Update
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted small fw-semibold"><i class="bi bi-lock-fill me-1"></i> Operations Closed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-bicycle display-4 mb-2 d-block text-light"></i>
+                        No operational delivery pipelines assigned to your manifest.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Modern Dark Pink Palette Configurations */
+        body {
+            background-color: #fce4ec; 
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(135deg, #880e4f 0%, #4a001f 100%); 
+            box-shadow: 0 4px 12px rgba(136, 14, 79, 0.25);
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, #ad1457 0%, #6a0035 100%); 
+            border-radius: 16px;
+            color: #ffffff;
+            box-shadow: 0 6px 15px rgba(173, 20, 87, 0.2);
+        }
+
+        /* --- ADVANCED PANDA AVATAR GENERATOR ENGINE --- */
+        .panda-wrapper {
+            position: relative;
+            width: 65px;
+            height: 60px;
+            background: transparent;
+            margin-bottom: 5px;
+        }
+
+        /* White Face Base Structure */
+        .panda-face {
+            position: absolute;
+            bottom: 0;
+            left: 7px;
+            width: 50px;
+            height: 44px;
+            background: #ffffff;
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+            z-index: 2;
+        }
+
+        /* Dark Characteristic Panda Ears */
+        .panda-wrapper::before, .panda-wrapper::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            background: #212529;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .panda-wrapper::before { left: 4px; } /* Left Ear */
+        .panda-wrapper::after { right: 4px; } /* Right Ear */
+
+        /* Dark Symmetrical Eye Patches */
+        .eye-patch-left, .eye-patch-right {
+            position: absolute;
+            top: 12px;
+            width: 13px;
+            height: 16px;
+            background: #212529;
+            border-radius: 50%;
+            transform: rotate(15deg);
+        }
+        .eye-patch-left { left: 9px; }
+        .eye-patch-right { right: 9px; transform: rotate(-15deg); }
+
+        /* Inner White Pupils */
+        .eye-patch-left::after, .eye-patch-right::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+
+        /* Snout & Little Nose Pointer */
+        .panda-nose {
+            position: absolute;
+            bottom: 11px;
+            left: 21px;
+            width: 8px;
+            height: 5px;
+            background: #212529;
+            border-radius: 50% 50% 40% 40%;
+        }
+
+        /* UI Theme Navigation Variables */
+        .btn-theme-accent {
+            background-color: #ffffff;
+            color: #880e4f;
+            font-weight: 600;
+            border: 2px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-theme-accent:hover {
+            background-color: transparent;
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .badge-role {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 text-white" href="{% url 'home' %}">
+                <i class="bi bi-truck me-2 text-white"></i>Food Delivery Tracker
+            </a>
+            <div class="ms-auto">
+                
+                    <a class="btn btn-theme-accent btn-sm px-4 rounded-pill shadow-sm" href="{% url 'logout' %}">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </a>
+               
+                    <a class="btn btn-outline-light btn-sm px-3 me-2 rounded-pill" href="{% url 'login' %}">Login</a>
+                    <a class="btn btn-light btn-sm px-4 fw-bold rounded-pill text-dark shadow-sm" href="{% url 'register' %}">Register</a>
+               
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+      
+            <div class="profile-card p-4 mb-4 border-0 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3 flex-column flex-sm-row text-center text-sm-start">
+                    
+                    <div class="panda-wrapper">
+                        <div class="panda-face">
+                            <div class="eye-patch-left"></div>
+                            <div class="eye-patch-right"></div>
+                            <div class="panda-nose"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-white-50 text-uppercase small tracking-wider d-block">Welcome Back</span>
+                        <h3 class="fw-bold mb-0 text-white" style="letter-spacing: -0.5px;">
+                            MEHWISH ISLAM
+                        </h3>
+                    </div>
+                </div>
+                
+                <div class="text-center text-sm-end">
+                    <span class="text-white-50 small d-block mb-1"><i class="bi bi-shield-check me-1"></i> Account Privilege</span>
+                    <span class="badge badge-role px-3 py-2 fw-bold text-uppercase fs-6 shadow-sm">
+                       
+                            <i class="bi bi-building-gear me-1"></i> Restaurant Manager
+                       
+                            <i class="bi bi-bicycle me-1"></i> Logistics Agent
+                      
+                            <i class="bi bi-person me-1"></i> Client Partner
+                       
+                    </span>
+                </div>
+            </div>
+       
+        
+        <main class="py-2">
+            
+        </main>
+       
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-white border-top text-center text-muted">
+        <div class="container">
+            <small class="fw-medium">&copy; 2026 Food Delivery Tracker System &bull; Theme Implemented</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-dark"><i class="bi bi-building-gear me-2"></i>Admin Operations Center</h2>
+    <span class="badge bg-dark px-3 py-2">System Analytics Live</span>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <!-- Updated background to #fce4ec and matching dark pink text for high contrast -->
+        <div class="card border-0 p-3 shadow-sm d-flex flex-row align-items-center justify-content-between" style="background-color: #fce4ec; color: #880e4f;">
+            <div>
+                <h6 class="text-uppercase mb-1 small style-muted" style="color: #ad1457;">Total Orders Logged</h6>
+                <h2 class="fw-bold mb-0"> total_orders </h2>
+            </div>
+            <i class="bi bi-box-seam display-6" style="color: #c2185b;"></i>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <!-- Updated background to #fce4ec and matching dark pink text for high contrast -->
+        <div class="card border-0 p-3 shadow-sm d-flex flex-row align-items-center justify-content-between" style="background-color: #fce4ec; color: #880e4f;">
+            <div>
+                <h6 class="text-uppercase mb-1 small" style="color: #ad1457;">Successful Deliveries</h6>
+                <h2 class="fw-bold mb-0"> delivered_orders </h2>
+            </div>
+            <i class="bi bi-check-circle-fill display-6" style="color: #c2185b;"></i>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 p-3 mb-4 shadow-sm bg-white">
+    <form method="GET" class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">⚡ View All Delivery Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Assigned">Assigned</option>
+                <option value="Picked Up">Picked Up</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark w-100 fw-semibold"><i class="bi bi-funnel me-1"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="card border-0 shadow-sm bg-white p-3">
+    <h5 class="fw-bold mb-3 text-secondary">Active Order Flow Management Logs</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle border-top">
+            <thead class="table-light text-uppercase small" style="font-size: 0.8rem;">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Item Specifications</th>
+                    <th>Delivery Target Address</th>
+                    <th>Status Lifecycle</th>
+                    <th>Driver Routing Dispatch</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td class="fw-bold text-primary"> order.id </td>
+                    <td> order.customer.username </td>
+                    <td> order.item_details </td>
+                    <td class="text-muted small"> order.delivery_address </td>
+                    <td>
+                        <span class="badge {% if order.status == 'Pending' %}bg-warning text-dark{% elif order.status == 'Delivered' %}bg-success{% else %}bg-info text-dark{% endif %}">
+                             order.status 
+                        </span>
+                    </td>
+                    <td>
+                         {% if not order.driver %} 
+                            <form action="{% url 'assign_driver' order.id %}" method="POST" class="d-flex gap-2">
+                                
+                                <select name="driver_id" class="form-select form-select-sm" style="min-width: 130px;" required>
+                                    <option value="">Select Courier...</option>
+                                    {% for driver in drivers %}
+                                        <option value=" driver.id "> driver.username </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-primary btn-sm fw-semibold">Assign</button>
+                            </form>
+                         {% else %} 
+                            <span class="text-success small fw-semibold"><i class="bi bi-bicycle me-1"></i> order.driver.username </span>
+                         {% endif %} 
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No logistics tracking matching filter parameters.</td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+</div>

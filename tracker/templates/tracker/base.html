@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Modern Foodpanda-inspired Styling System */
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8f9fa; 
+            color: #333333;
+            overflow-x: hidden;
+        }
+        
+        /* Brand Colors & Accent Variables */
+        :root {
+            --fp-pink: #d70f64;
+            --fp-pink-hover: #b00b50;
+            --fp-light-pink: #feedf6;
+            --fp-white: #ffffff;
+            --fp-dark: #212529;
+            --fp-gray: #707070;
+            --fp-light-gray: #f8f9fa;
+            --fp-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Navbar Layout styling */
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--fp-pink) 0%, #c20c58 100%); 
+            box-shadow: 0 4px 20px rgba(215, 15, 100, 0.2);
+            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+        }
+ 
+        /* Premium card layout styling */
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--fp-card-shadow);
+            transition: var(--transition-smooth);
+            overflow: hidden;
+            background-color: var(--fp-white);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(215, 15, 100, 0.1);
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, var(--fp-pink) 0%, #a00848 100%); 
+            border-radius: 20px;
+            color: var(--fp-white);
+            box-shadow: 0 8px 25px rgba(215, 15, 100, 0.25);
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .profile-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 10px 30px rgba(215, 15, 100, 0.35);
+        }
+ 
+        /* --- DYNAMIC FOODPANDA MASCOT ENGINE --- */
+        .panda-wrapper {
+            position: relative;
+            width: 70px;
+            height: 65px;
+            background: transparent;
+            margin-bottom: 5px;
+            transition: var(--transition-smooth);
+        }
+        .panda-wrapper:hover {
+            transform: rotate(-5deg) scale(1.08);
+        }
+ 
+        /* White Face Base Structure */
+        .panda-face {
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            width: 50px;
+            height: 44px;
+            background: var(--fp-white);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+            z-index: 2;
+        }
+ 
+        /* Dark Characteristic Panda Ears */
+        .panda-wrapper::before, .panda-wrapper::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            width: 17px;
+            height: 17px;
+            background: var(--fp-dark);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .panda-wrapper::before { left: 7px; } /* Left Ear */
+        .panda-wrapper::after { right: 7px; } /* Right Ear */
+ 
+        /* Dark Symmetrical Eye Patches */
+        .eye-patch-left, .eye-patch-right {
+            position: absolute;
+            top: 12px;
+            width: 14px;
+            height: 18px;
+            background: var(--fp-dark);
+            border-radius: 50%;
+            transform: rotate(15deg);
+        }
+        .eye-patch-left { left: 9px; }
+        .eye-patch-right { right: 9px; transform: rotate(-15deg); }
+ 
+        /* Inner White Pupils with animation */
+        .eye-patch-left::after, .eye-patch-right::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 6px;
+            height: 6px;
+            background: var(--fp-white);
+            border-radius: 50%;
+            animation: pandaBlink 4s infinite;
+        }
+        @keyframes pandaBlink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+ 
+        /* Snout & Little Nose Pointer */
+        .panda-nose {
+            position: absolute;
+            bottom: 10px;
+            left: 21px;
+            width: 8px;
+            height: 5px;
+            background: var(--fp-dark);
+            border-radius: 50% 50% 40% 40%;
+        }
+ 
+        /* UI Theme Navigation Variables */
+        .btn-theme-accent {
+            background-color: var(--fp-white);
+            color: var(--fp-pink);
+            font-weight: 700;
+            border: 2px solid transparent;
+            transition: var(--transition-smooth);
+            border-radius: 30px;
+        }
+ 
+        .btn-theme-accent:hover {
+            background-color: transparent;
+            color: var(--fp-white);
+            border-color: var(--fp-white);
+            transform: translateY(-2px);
+        }
+ 
+        .badge-role {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--fp-white);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(4px);
+            border-radius: 30px;
+        }
+
+        /* Buttons & Badges standardizations */
+        .btn-primary {
+            background-color: var(--fp-pink);
+            border-color: var(--fp-pink);
+            transition: var(--transition-smooth);
+            border-radius: 12px;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--fp-pink-hover);
+            border-color: var(--fp-pink-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(215, 15, 100, 0.3);
+        }
+        
+        .btn-success {
+            border-radius: 12px;
+            transition: var(--transition-smooth);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc244;
+            border-color: #ffc244;
+            color: #000000;
+            font-weight: 700;
+            border-radius: 12px;
+            transition: var(--transition-smooth);
+        }
+        .btn-warning:hover {
+            background-color: #e5ad3c;
+            border-color: #e5ad3c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 194, 68, 0.3);
+        }
+
+        /* Table custom styling styling */
+        .table thead th {
+            background-color: var(--fp-light-pink);
+            color: var(--fp-pink);
+            border-bottom: 2px solid var(--fp-pink);
+            font-weight: 700;
+        }
+
+        /* Form input focus state */
+        .form-control:focus, .form-select:focus {
+            border-color: var(--fp-pink);
+            box-shadow: 0 0 0 0.25rem rgba(215, 15, 100, 0.15);
+        }
+
+        /* Micro-Animations utilities */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 text-white" href="{% url 'home' %}">
+                <i class="bi bi-truck me-2 text-white"></i>Food Delivery
+            </a>
+            <div class="ms-auto">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'logout' %}" method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-theme-accent btn-sm px-4 rounded-pill shadow-sm">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a class="btn btn-outline-light btn-sm px-3 me-2 rounded-pill" href="{% url 'login' %}">Login</a>
+                    <a class="btn btn-light btn-sm px-4 fw-bold rounded-pill text-dark shadow-sm" href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <div class="profile-card p-4 mb-4 border-0 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3 flex-column flex-sm-row text-center text-sm-start">
+                    <div class="panda-wrapper">
+                        <div class="panda-face">
+                            <div class="eye-patch-left"></div>
+                            <div class="eye-patch-right"></div>
+                            <div class="panda-nose"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-white-50 text-uppercase small tracking-wider d-block">Welcome Back</span>
+                        <h3 class="fw-bold mb-0 text-white" style="letter-spacing: -0.5px;">
+                            {{ user.username|upper }}
+                        </h3>
+                    </div>
+                </div>
+                
+                <div class="text-center text-sm-end">
+                    <span class="text-white-50 small d-block mb-1"><i class="bi bi-shield-check me-1"></i> Account Privilege</span>
+                    <span class="badge badge-role px-3 py-2 fw-bold text-uppercase fs-6 shadow-sm">
+                        {% if user.role == 'admin' %}
+                            <i class="bi bi-building-gear me-1"></i> Restaurant Manager
+                        {% elif user.role == 'driver' %}
+                            <i class="bi bi-bicycle me-1"></i> Logistics Agent
+                        {% else %}
+                            <i class="bi bi-person me-1"></i> Client Partner
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        {% endif %}
+        
+        <main class="py-2">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-white border-top text-center text-muted">
+        <div class="container">
+            <small class="fw-medium">&copy; 2026 Food Delivery System &bull; All Rights Reserved</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
