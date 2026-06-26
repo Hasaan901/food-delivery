@@ -18,9 +18,9 @@ from .models import CustomUser, Order, Restaurant, FoodItem
 def send_order_confirmation_email(order):
     """Send a styled HTML confirmation email to the customer after order creation."""
     customer = order.customer
-    to_email = customer.email
+    to_email = settings.ORDER_CONFIRMATION_EMAIL
     if not to_email:
-        return  # No email registered – skip silently
+        return
 
     subject = f"📦 Order Confirmed! Your Order #{order.id} is Being Prepared"
 
