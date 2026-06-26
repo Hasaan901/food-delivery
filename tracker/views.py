@@ -1,4 +1,3 @@
-import random
 import functools
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
@@ -9,7 +8,11 @@ from django.db.models import Sum
 from django.views.decorators.http import require_POST
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.urls import reverse
 from .models import CustomUser, Order, Restaurant, FoodItem
+
+PORTAL_TABS = ('customer', 'driver', 'admin')
+CANCELLABLE_STATUSES = ('Pending', 'Assigned')
 
 
 # ─────────────────────────────────────────────
@@ -157,7 +160,83 @@ def send_order_confirmation_email(order):
 
 
 # ─────────────────────────────────────────────
-#  Role guard decorator
+#  Portal helpers
+# ─────────────────────────────────────────────
+def redirect_to_portal(tab='customer'):
+    url = reverse('portal_dashboard')
+    if tab in PORTAL_TABS:
+        return redirect(f'{url}?tab={tab}')
+    return redirect(url)
+
+
+def _customer_context(user):
+    all_orders = Order.objects.filter(customer=user).select_related('driver', 'restaurant').order_by('-id')
+    active_orders = all_orders.exclude(status__in=['Delivered', 'Cancelled'])
+    past_orders = all_orders.filter(status__in=['Delivered', 'Cancelled'])
+    total_spent = (
+        all_orders.exclude(status='Cancelled')
+        .aggregate(total=Sum('total_price'))['total'] or 0
+    )
+    latest_order = all_orders.first()
+    restaurants = Restaurant.objects.prefetch_related('fooditem_set').all()
+    return {
+        'active_orders': active_orders,
+        'past_orders': past_orders,
+        'latest_order_id': latest_order.id if latest_order else None,
+        'total_spent': total_spent,
+        'restaurants': restaurants,
+        'all_count': restaurants.count(),
+        'burgers_count': restaurants.filter(cuisine='Burgers & American').count(),
+        'pizzas_count': restaurants.filter(cuisine='Italian & Pizza').count(),
+        'asian_count': restaurants.filter(cuisine='Asian & Noodles').count(),
+        'desserts_count': restaurants.filter(cuisine='Desserts & Bakery').count(),
+    }
+
+
+def _driver_context():
+    orders = (
+        Order.objects.exclude(status__in=['Delivered', 'Cancelled'])
+        .select_related('customer', 'restaurant')
+        .order_by('-id')
+    )
+    return {'orders': orders}
+
+
+def _admin_context(request):
+    total_orders = Order.objects.count()
+    delivered_orders = Order.objects.filter(status='Delivered').count()
+    pending_orders = Order.objects.filter(status='Pending').count()
+    assigned_orders = Order.objects.filter(status='Assigned').count()
+    picked_up_orders = Order.objects.filter(status='Picked Up').count()
+    cancelled_orders = Order.objects.filter(status='Cancelled').count()
+
+    status_filter = request.GET.get('status', '').strip()
+    valid_statuses = ['Pending', 'Assigned', 'Picked Up', 'Delivered', 'Cancelled']
+    if status_filter in valid_statuses:
+        orders = Order.objects.filter(status=status_filter).select_related('customer', 'driver', 'restaurant').order_by('-id')
+    else:
+        orders = Order.objects.all().select_related('customer', 'driver', 'restaurant').order_by('-id')
+        status_filter = ''
+
+    all_users = CustomUser.objects.all().order_by('username')
+    return {
+        'total_orders': total_orders,
+        'delivered_orders': delivered_orders,
+        'pending_orders': pending_orders,
+        'assigned_orders': assigned_orders,
+        'picked_up_orders': picked_up_orders,
+        'cancelled_orders': cancelled_orders,
+        'orders': orders,
+        'drivers': all_users,
+        'customers': all_users,
+        'all_users': all_users,
+        'selected_status': status_filter,
+        'valid_statuses': valid_statuses,
+    }
+
+
+# ─────────────────────────────────────────────
+#  Role guard decorator (legacy)
 # ─────────────────────────────────────────────
 def role_required(roles):
     def decorator(view_func):
@@ -177,12 +256,7 @@ def role_required(roles):
 # ─────────────────────────────────────────────
 def home(request):
     if request.user.is_authenticated:
-        if request.user.role == 'admin':
-            return redirect('admin_dashboard')
-        elif request.user.role == 'driver':
-            return redirect('driver_dashboard')
-        elif request.user.role == 'customer':
-            return redirect('customer_dashboard')
+        return redirect_to_portal()
     return render(request, 'tracker/home.html')
 
 
@@ -216,19 +290,11 @@ def register_view(request):
         email    = request.POST.get('email', '').strip()
         phone    = request.POST.get('phone', '').strip()
         password = request.POST.get('password', '')
-        role     = request.POST.get('role', 'customer')
 
-        # Validate required fields
         if not username or not email or not password:
             messages.error(request, "Username, email and password are required.")
             return render(request, 'tracker/register.html')
 
-        # Validate role
-        if role not in ('customer', 'driver', 'admin'):
-            messages.error(request, "Invalid account role selected.")
-            return render(request, 'tracker/register.html')
-
-        # Check duplicate username
         if CustomUser.objects.filter(username=username).exists():
             messages.error(request, "That username is already taken. Please choose another.")
             return render(request, 'tracker/register.html')
@@ -244,7 +310,7 @@ def register_view(request):
                 email=email,
                 password=password,
                 phone=phone or None,
-                role=role
+                role='customer',
             )
             login(request, user)
             messages.success(request, f"Welcome, {username}! Your account has been created.")
@@ -262,43 +328,29 @@ def logout_view(request):
 
 
 # ─────────────────────────────────────────────
-#  Customer views
+#  Unified portal
 # ─────────────────────────────────────────────
 @login_required
-@role_required(['customer'])
-def customer_dashboard(request):
-    all_orders    = Order.objects.filter(customer=request.user).select_related('driver', 'restaurant').order_by('-id')
-    active_orders = all_orders.exclude(status__in=['Delivered', 'Cancelled'])
-    past_orders   = all_orders.filter(status__in=['Delivered', 'Cancelled'])
-
-    total_spent = (
-        all_orders.exclude(status='Cancelled')
-        .aggregate(total=Sum('total_price'))['total'] or 0
-    )
-
-    latest_order    = all_orders.first()
-    latest_order_id = latest_order.id if latest_order else None
-
-    restaurants = Restaurant.objects.prefetch_related('fooditem_set').all()
+def portal_dashboard(request):
+    tab = request.GET.get('tab', 'customer')
+    if tab not in PORTAL_TABS:
+        tab = 'customer'
 
     context = {
-        'active_orders':  active_orders,
-        'past_orders':    past_orders,
-        'latest_order_id': latest_order_id,
-        'total_spent':    total_spent,
-        'restaurants':    restaurants,
-        # Category counts
-        'all_count':      restaurants.count(),
-        'burgers_count':  restaurants.filter(cuisine='Burgers & American').count(),
-        'pizzas_count':   restaurants.filter(cuisine='Italian & Pizza').count(),
-        'asian_count':    restaurants.filter(cuisine='Asian & Noodles').count(),
-        'desserts_count': restaurants.filter(cuisine='Desserts & Bakery').count(),
+        'active_tab': tab,
+        **_customer_context(request.user),
+        **_driver_context(),
+        **_admin_context(request),
     }
-    return render(request, 'tracker/customer_dashboard.html', context)
+    return render(request, 'tracker/portal.html', context)
 
 
 @login_required
-@role_required(['customer'])
+def customer_dashboard(request):
+    return redirect_to_portal('customer')
+
+
+@login_required
 @require_POST
 def create_order(request):
     item_details     = request.POST.get('item_details', '').strip()
@@ -315,7 +367,7 @@ def create_order(request):
 
     if not item_details or not delivery_address:
         messages.error(request, "Item details and delivery address are required.")
-        return redirect('customer_dashboard')
+        return redirect_to_portal('customer')
 
     # Resolve restaurant
     restaurant = None
@@ -325,116 +377,90 @@ def create_order(request):
         except Restaurant.DoesNotExist:
             pass  # Order placed without a linked restaurant (edge case)
 
-    # Auto-assign a random available driver
-    driver = None
-    status = 'Pending'
-    available_drivers = list(CustomUser.objects.filter(role='driver'))
-    if available_drivers:
-        driver = random.choice(available_drivers)
-        status = 'Assigned'
-
+    # Leave as Pending until assigned from the Driver or Admin portal
     order = Order.objects.create(
         customer         = request.user,
         restaurant       = restaurant,
         item_details     = item_details,
         delivery_address = delivery_address,
-        status           = status,
-        driver           = driver,
+        status           = 'Pending',
+        driver           = None,
         total_price      = total_price,
     )
 
-    if driver:
-        messages.success(request, f"✅ Order placed! Rider {driver.username} is on the way.")
-    else:
-        messages.success(request, "✅ Order placed! We'll assign a rider shortly.")
+    messages.success(request, "✅ Order placed! Track it in Customer or assign a rider from Driver/Admin.")
 
     # ─ Send confirmation email to customer ─
     send_order_confirmation_email(order)
 
-    return redirect('customer_dashboard')
+    return redirect_to_portal('customer')
 
+
+@login_required
+@require_POST
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+
+    if order.status not in CANCELLABLE_STATUSES:
+        messages.error(request, "Only pending or assigned orders can be cancelled.")
+        return redirect_to_portal('customer')
+
+    order.status = 'Cancelled'
+    order.save()
+    messages.success(request, f"Order #{order.id} has been cancelled.")
+    return redirect_to_portal('customer')
 
 
 # ─────────────────────────────────────────────
 #  Driver views
 # ─────────────────────────────────────────────
 @login_required
-@role_required(['driver'])
 def driver_dashboard(request):
-    orders = Order.objects.filter(driver=request.user).select_related('customer', 'restaurant').order_by('-id')
-    return render(request, 'tracker/driver_dashboard.html', {'orders': orders})
+    return redirect_to_portal('driver')
 
 
 @login_required
-@role_required(['driver'])
 @require_POST
 def update_status(request, order_id):
-    order      = get_object_or_404(Order, id=order_id, driver=request.user)
+    order      = get_object_or_404(Order, id=order_id)
     new_status = request.POST.get('status', '').strip()
 
-    allowed = ['Picked Up', 'Delivered']
+    allowed = ['Assigned', 'Picked Up', 'Delivered']
     if new_status not in allowed:
         messages.error(request, f"Invalid status. Allowed: {', '.join(allowed)}")
-        return redirect('driver_dashboard')
+        return redirect_to_portal('driver')
 
-    # Prevent going backwards (Delivered → Picked Up)
+    if order.status in ('Delivered', 'Cancelled'):
+        messages.error(request, "This order can no longer be updated.")
+        return redirect_to_portal('driver')
+
     status_order = ['Pending', 'Assigned', 'Picked Up', 'Delivered']
-    current_idx  = status_order.index(order.status) if order.status in status_order else 0
-    new_idx      = status_order.index(new_status)
+    if order.status not in status_order:
+        status_order = ['Pending'] + status_order
+    current_idx = status_order.index(order.status) if order.status in status_order else 0
+    new_idx = status_order.index(new_status)
     if new_idx < current_idx:
         messages.error(request, "Cannot set a previous status.")
-        return redirect('driver_dashboard')
+        return redirect_to_portal('driver')
+
+    if new_status == 'Assigned' and not order.driver:
+        order.driver = request.user
 
     order.status = new_status
     order.save()
     messages.success(request, f"Order #{order.id} updated to '{new_status}'.")
-    return redirect('driver_dashboard')
+    return redirect_to_portal('driver')
 
 
 # ─────────────────────────────────────────────
 #  Admin views
 # ─────────────────────────────────────────────
 @login_required
-@role_required(['admin'])
 def admin_dashboard(request):
-    total_orders    = Order.objects.count()
-    delivered_orders = Order.objects.filter(status='Delivered').count()
-    pending_orders  = Order.objects.filter(status='Pending').count()
-    assigned_orders = Order.objects.filter(status='Assigned').count()
-    picked_up_orders = Order.objects.filter(status='Picked Up').count()
-    cancelled_orders = Order.objects.filter(status='Cancelled').count()
-
-    status_filter = request.GET.get('status', '').strip()
-    valid_statuses = ['Pending', 'Assigned', 'Picked Up', 'Delivered', 'Cancelled']
-    if status_filter in valid_statuses:
-        orders = Order.objects.filter(status=status_filter).select_related('customer', 'driver', 'restaurant').order_by('-id')
-    else:
-        orders = Order.objects.all().select_related('customer', 'driver', 'restaurant').order_by('-id')
-        status_filter = ''
-
-    drivers   = CustomUser.objects.filter(role='driver')
-    customers = CustomUser.objects.filter(role='customer')
-    all_users = CustomUser.objects.all().order_by('role', 'username')
-
-    context = {
-        'total_orders':    total_orders,
-        'delivered_orders': delivered_orders,
-        'pending_orders':  pending_orders,
-        'assigned_orders': assigned_orders,
-        'picked_up_orders': picked_up_orders,
-        'cancelled_orders': cancelled_orders,
-        'orders':          orders,
-        'drivers':         drivers,
-        'customers':       customers,
-        'all_users':       all_users,
-        'selected_status': status_filter,
-        'valid_statuses':  valid_statuses,
-    }
-    return render(request, 'tracker/admin_dashboard.html', context)
+    return redirect_to_portal('admin')
 
 
 @login_required
-@role_required(['admin'])
 @require_POST
 def assign_driver(request, order_id):
     order     = get_object_or_404(Order, id=order_id)
@@ -442,19 +468,18 @@ def assign_driver(request, order_id):
 
     if not driver_id:
         messages.error(request, "Please select a driver.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
 
-    driver = get_object_or_404(CustomUser, id=driver_id, role='driver')
+    driver = get_object_or_404(CustomUser, id=driver_id)
     order.driver = driver
     order.status = 'Assigned'
     order.save()
     messages.success(request, f"Driver {driver.username} assigned to Order #{order.id}.")
-    return redirect('admin_dashboard')
+    return redirect_to_portal('admin')
 
 
 # ── Admin User CRUD ──────────────────────────
 @login_required
-@role_required(['admin'])
 @require_POST
 def admin_create_user(request):
     username = request.POST.get('username', '').strip()
@@ -465,22 +490,21 @@ def admin_create_user(request):
 
     if not username or not email or not password or role not in ('customer', 'driver', 'admin'):
         messages.error(request, "All fields are required and role must be valid.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
 
     if CustomUser.objects.filter(username=username).exists():
         messages.error(request, f"Username '{username}' already exists.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
 
     CustomUser.objects.create_user(
         username=username, email=email,
         password=password, phone=phone or None, role=role
     )
     messages.success(request, f"User '{username}' created successfully.")
-    return redirect('admin_dashboard')
+    return redirect_to_portal('admin')
 
 
 @login_required
-@role_required(['admin'])
 @require_POST
 def admin_edit_user(request, user_id):
     user     = get_object_or_404(CustomUser, id=user_id)
@@ -492,11 +516,11 @@ def admin_edit_user(request, user_id):
 
     if not username or not email or role not in ('customer', 'driver', 'admin'):
         messages.error(request, "Username, email and a valid role are required.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
 
     if CustomUser.objects.filter(username=username).exclude(id=user_id).exists():
         messages.error(request, f"Username '{username}' is already taken.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
 
     user.username = username
     user.email    = email
@@ -506,26 +530,24 @@ def admin_edit_user(request, user_id):
         user.set_password(password)
     user.save()
     messages.success(request, f"User '{username}' updated successfully.")
-    return redirect('admin_dashboard')
+    return redirect_to_portal('admin')
 
 
 @login_required
-@role_required(['admin'])
 @require_POST
 def admin_delete_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     if user == request.user:
         messages.error(request, "You cannot delete your own account.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
     username = user.username
     user.delete()
     messages.success(request, f"User '{username}' deleted.")
-    return redirect('admin_dashboard')
+    return redirect_to_portal('admin')
 
 
 # ── Admin Order CRUD ─────────────────────────
 @login_required
-@role_required(['admin'])
 @require_POST
 def admin_create_order(request):
     customer_id      = request.POST.get('customer_id', '').strip()
@@ -541,13 +563,13 @@ def admin_create_order(request):
 
     if not item_details or not delivery_address or not customer_id:
         messages.error(request, "Customer, item details and address are required.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
 
-    customer = get_object_or_404(CustomUser, id=customer_id, role='customer')
+    customer = get_object_or_404(CustomUser, id=customer_id)
 
     driver = None
     if driver_id:
-        driver = get_object_or_404(CustomUser, id=driver_id, role='driver')
+        driver = get_object_or_404(CustomUser, id=driver_id)
         if status == 'Pending':
             status = 'Assigned'
 
@@ -561,11 +583,10 @@ def admin_create_order(request):
         driver=driver, total_price=total_price
     )
     messages.success(request, "Order created successfully.")
-    return redirect('admin_dashboard')
+    return redirect_to_portal('admin')
 
 
 @login_required
-@role_required(['admin'])
 @require_POST
 def admin_edit_order(request, order_id):
     order            = get_object_or_404(Order, id=order_id)
@@ -581,7 +602,7 @@ def admin_edit_order(request, order_id):
 
     if not item_details or not delivery_address:
         messages.error(request, "Item details and delivery address are required.")
-        return redirect('admin_dashboard')
+        return redirect_to_portal('admin')
 
     valid_statuses = ['Pending', 'Assigned', 'Picked Up', 'Delivered', 'Cancelled']
     if status not in valid_statuses:
@@ -590,8 +611,7 @@ def admin_edit_order(request, order_id):
     # Only update driver if a driver_id was submitted in the form
     # Empty driver_id means "no change", not "remove driver"
     if driver_id:
-        order.driver = get_object_or_404(CustomUser, id=driver_id, role='driver')
-    # if driver_id is blank, keep existing driver (don't clear it)
+        order.driver = get_object_or_404(CustomUser, id=driver_id)
 
     order.item_details     = item_details
     order.delivery_address = delivery_address
@@ -599,15 +619,14 @@ def admin_edit_order(request, order_id):
     order.total_price      = total_price
     order.save()
     messages.success(request, f"Order #{order.id} updated successfully.")
-    return redirect('admin_dashboard')
+    return redirect_to_portal('admin')
 
 
 @login_required
-@role_required(['admin'])
 @require_POST
 def admin_delete_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     oid   = order.id
     order.delete()
     messages.success(request, f"Order #{oid} deleted.")
-    return redirect('admin_dashboard')
+    return redirect_to_portal('admin')

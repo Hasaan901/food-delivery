@@ -30,3 +30,5 @@ media/
 
 # Pyrefly / type checkers
 pyrefly.toml
+.vercel
+.env*

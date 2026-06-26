@@ -6,7 +6,11 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
     path('logout/', views.logout_view, name='logout'),
-    
+
+    # Unified portal
+    path('dashboard/', views.portal_dashboard, name='portal_dashboard'),
+    path('order/<int:order_id>/cancel/', views.cancel_order, name='cancel_order'),
+
     # Customer routes
     path('customer/dashboard/', views.customer_dashboard, name='customer_dashboard'),
     path('customer/order/create/', views.create_order, name='create_order'),

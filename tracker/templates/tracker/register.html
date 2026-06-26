@@ -10,7 +10,7 @@
                         <i class="bi bi-person-plus fs-2 text-danger" style="color: var(--fp-pink) !important;"></i>
                     </div>
                     <h3 class="fw-bold text-dark mb-1">Create Account</h3>
-                    <p class="text-muted small">Register to start managing, driving, or ordering</p>
+                    <p class="text-muted small">Register to order food, deliver orders, and manage the platform</p>
                 </div>
                 
                 <form method="POST">
@@ -31,18 +31,9 @@
                         <input type="email" name="email" class="form-control bg-light" placeholder="name@example.com" required>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label class="form-label fw-semibold text-secondary">Password</label>
                         <input type="password" name="password" class="form-control bg-light" placeholder="Create strong password" required>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-primary mb-2" style="color: var(--fp-pink) !important;">Select Account Role Type</label>
-                        <select name="role" class="form-select border-2" style="border-color: var(--fp-pink);" required>
-                            <option value="customer">Customer (Place & Track Orders)</option>
-                            <option value="driver">Driver (Accept & Deliver Orders)</option>
-                            <option value="admin">Restaurant Admin (Manage Platform Logistics)</option>
-                        </select>
                     </div>
                     
                     <button class="btn btn-primary w-100 py-3 fw-bold shadow-lg" type="submit">

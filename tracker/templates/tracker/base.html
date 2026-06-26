@@ -290,15 +290,9 @@
                 </div>
                 
                 <div class="text-center text-sm-end">
-                    <span class="text-white-50 small d-block mb-1"><i class="bi bi-shield-check me-1"></i> Account Privilege</span>
+                    <span class="text-white-50 small d-block mb-1"><i class="bi bi-grid-1x2-fill me-1"></i> Portal Access</span>
                     <span class="badge badge-role px-3 py-2 fw-bold text-uppercase fs-6 shadow-sm">
-                        {% if user.role == 'admin' %}
-                            <i class="bi bi-building-gear me-1"></i> Restaurant Manager
-                        {% elif user.role == 'driver' %}
-                            <i class="bi bi-bicycle me-1"></i> Logistics Agent
-                        {% else %}
-                            <i class="bi bi-person me-1"></i> Client Partner
-                        {% endif %}
+                        <i class="bi bi-universal-access me-1"></i> Customer · Driver · Admin
                     </span>
                 </div>
             </div>
