@@ -11,17 +11,17 @@
 <!-- Tabs Navigation -->
 <ul class="nav nav-pills mb-4 gap-2 animate-up" id="adminTabs" role="tablist" style="animation-delay: 0.1s;">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" id="analytics-tab" data-bs-toggle="pill" data-bs-target="#analytics" type="button" role="tab" aria-controls="analytics" aria-selected="true" style="border-radius: 12px;">
+        <button class="nav-link active px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" id="admin-analytics-tab" data-bs-toggle="pill" data-bs-target="#admin-analytics-pane" type="button" role="tab" aria-controls="admin-analytics-pane" aria-selected="true" style="border-radius: 12px;">
             <i class="bi bi-bar-chart-steps"></i> Analytics Summary
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" id="orders-tab" data-bs-toggle="pill" data-bs-target="#orders" type="button" role="tab" aria-controls="orders" aria-selected="false" style="border-radius: 12px;">
+        <button class="nav-link px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" id="admin-orders-tab" data-bs-toggle="pill" data-bs-target="#admin-orders-pane" type="button" role="tab" aria-controls="admin-orders-pane" aria-selected="false" style="border-radius: 12px;">
             <i class="bi bi-box-seam"></i> Manage Orders
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" id="accounts-tab" data-bs-toggle="pill" data-bs-target="#accounts" type="button" role="tab" aria-controls="accounts" aria-selected="false" style="border-radius: 12px;">
+        <button class="nav-link px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" id="admin-accounts-tab" data-bs-toggle="pill" data-bs-target="#admin-accounts-pane" type="button" role="tab" aria-controls="admin-accounts-pane" aria-selected="false" style="border-radius: 12px;">
             <i class="bi bi-people"></i> Manage Accounts
         </button>
     </li>
@@ -31,7 +31,7 @@
 <div class="tab-content animate-up" id="adminTabsContent" style="animation-delay: 0.15s;">
     
     <!-- Tab 1: Analytics -->
-    <div class="tab-pane fade show active" id="analytics" role="tabpanel" aria-labelledby="analytics-tab">
+    <div class="tab-pane fade show active" id="admin-analytics-pane" role="tabpanel" aria-labelledby="admin-analytics-tab">
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-4 col-lg-2">
                 <div class="card p-3 shadow-sm border-0 text-center h-100 bg-white">
@@ -116,7 +116,7 @@
     </div>
 
     <!-- Tab 2: Manage Orders -->
-    <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+    <div class="tab-pane fade" id="admin-orders-pane" role="tabpanel" aria-labelledby="admin-orders-tab">
         <div class="card border-0 shadow-sm p-4 bg-white mb-4">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                 <h4 class="fw-bold text-dark mb-0"><i class="bi bi-box-seam me-2" style="color: var(--fp-pink);"></i>Active Order Tracking Records</h4>
@@ -220,7 +220,7 @@
     </div>
 
     <!-- Tab 3: Manage Accounts -->
-    <div class="tab-pane fade" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
+    <div class="tab-pane fade" id="admin-accounts-pane" role="tabpanel" aria-labelledby="admin-accounts-tab">
         <div class="card border-0 shadow-sm p-4 bg-white">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold text-dark mb-0"><i class="bi bi-people me-2" style="color: var(--fp-pink);"></i>Central Accounts Directory</h4>
@@ -488,8 +488,6 @@
     </div>
 </div>
 {% endfor %}
-
-</div>
 
 <style>
     @keyframes pulse {

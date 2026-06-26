@@ -574,10 +574,14 @@
                             </span>
                         </div>
 
-                        <button onclick="addToBasket('{{ item.id }}', '{{ item.name }}', '{{ item.price }}',
-                                            '{{ restaurant.name }}', '{{ restaurant.delivery_fee }}',
-                                            '{{ restaurant.id }}')"
-                                class="btn btn-sm fw-bold px-3 flex-shrink-0"
+                        <button type="button"
+                                class="btn-add-to-basket btn btn-sm fw-bold px-3 flex-shrink-0"
+                                data-item-id="{{ item.id }}"
+                                data-item-name="{{ item.name|escapejs }}"
+                                data-item-price="{{ item.price }}"
+                                data-restaurant-name="{{ restaurant.name|escapejs }}"
+                                data-delivery-fee="{{ restaurant.delivery_fee }}"
+                                data-restaurant-id="{{ restaurant.id }}"
                                 style="background-color: var(--fp-pink); color: white; border-radius: 10px;
                                        white-space: nowrap; font-size: 0.8rem;">
                             <i class="bi bi-plus"></i> Add
@@ -642,12 +646,12 @@
         const price = parseFloat(itemPrice);
         const dFee  = parseFloat(deliveryFee) || 0;
 
-        const existing = basket.find(i => i.id === itemId);
+        const existing = basket.find(i => String(i.id) === String(itemId));
         if (existing) {
             existing.quantity += 1;
         } else {
             basket.push({
-                id: itemId, name: itemName, price: price,
+                id: String(itemId), name: itemName, price: price,
                 quantity: 1, deliveryFee: dFee,
                 storeName: restaurantName, restaurantId: restaurantId
             });
@@ -665,15 +669,21 @@
     };
 
     function renderBasket () {
-        const container   = document.getElementById('cart-items-container');
-        const subtotalEl  = document.getElementById('cart-subtotal');
-        const deliveryEl  = document.getElementById('cart-delivery');
-        const totalEl     = document.getElementById('cart-total');
-        const itemsInput  = document.getElementById('id_item_details');
-        const priceInput  = document.getElementById('id_total_price');
-        const restInput   = document.getElementById('id_restaurant_id');
-        const checkoutBtn = document.getElementById('checkout-btn');
-        const storeLabel  = document.getElementById('basket-store-name');
+        const root = document.getElementById('portal-customer') || document;
+        const container   = root.querySelector('#cart-items-container');
+        const subtotalEl  = root.querySelector('#cart-subtotal');
+        const deliveryEl  = root.querySelector('#cart-delivery');
+        const totalEl     = root.querySelector('#cart-total');
+        const itemsInput  = root.querySelector('#id_item_details');
+        const priceInput  = root.querySelector('#id_total_price');
+        const restInput   = root.querySelector('#id_restaurant_id');
+        const checkoutBtn = root.querySelector('#checkout-btn');
+        const storeLabel  = root.querySelector('#basket-store-name');
+
+        if (!container || !subtotalEl || !deliveryEl || !totalEl || !itemsInput || !checkoutBtn || !storeLabel) {
+            console.error('Basket UI elements not found');
+            return;
+        }
 
         if (basket.length === 0) {
             container.innerHTML = `
@@ -748,8 +758,9 @@
     }
 
     window.validateCheckout = function () {
-        const itemsInput = document.getElementById('id_item_details');
-        if (!itemsInput.value || basket.length === 0) {
+        const root = document.getElementById('portal-customer') || document;
+        const itemsInput = root.querySelector('#id_item_details');
+        if (!itemsInput || !itemsInput.value || basket.length === 0) {
             alert('Your basket is empty! Please add items before checking out.');
             return false;
         }
@@ -839,6 +850,20 @@
     }
 
     /* ── Init ── */
+    document.addEventListener('click', function (event) {
+        const addBtn = event.target.closest('.btn-add-to-basket');
+        if (!addBtn) return;
+        event.preventDefault();
+        addToBasket(
+            addBtn.dataset.itemId,
+            addBtn.dataset.itemName,
+            addBtn.dataset.itemPrice,
+            addBtn.dataset.restaurantName,
+            addBtn.dataset.deliveryFee,
+            addBtn.dataset.restaurantId
+        );
+    });
+
     document.addEventListener('DOMContentLoaded', startCountdowns);
 
 })();
